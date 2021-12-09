@@ -7,13 +7,13 @@ int REST = 100; // has to be unique
 // 3rd Octave
 int NC3 = 131; int NCS3 = 138; int ND3 = 147; int NDS3 = 155;
 int NE3 = 165; int NF3 = 175; int NFS3 = 185; int NG3 = 196;
-int GS3 = 208; int NA3 = 220; int NAS3 = 233; int NB3 = 247;
+int NGS3 = 208; int NA3 = 220; int NAS3 = 233; int NB3 = 247;
 
 // 4th Octave (middle C)
 int NC4 = 262; int NCS4 = 277; int ND4 = 294;
 int NDS4 = 311; int NE4 = 330; int NF4 = 349;
 int NFS4 = 370; int NG4 = 392; int NGS4 = 415;
-int NNA4 = 440; int NAS4 = 466; int NB4 = 494;
+int NA4 = 440; int NAS4 = 466; int NB4 = 494;
 
 // 5th Octave
 int NB5 = 988; int NAS5 = 932; int NA5 = 880;
@@ -36,10 +36,12 @@ int dottedQuarter = 0;
 int eighth = 0;
 int dottedEighth = 0;
 int sixteenth = 0;
-int dotted16th = 0;
-int bpm = 144;
+
+int bpm = 300;
 
 int BellaCiao[44][3];
+
+
 
 void setup() {
   pinMode(BuzzerPin, OUTPUT);
@@ -52,12 +54,11 @@ void setup() {
   half = 2 * quarter;
   dottedHalf = 3 * quarter;
   sixteenth = eighth / 2;
-  dotted16th = 1.5 * sixteenth;
 }
 void loop() {
   // Note: {Note Value (N=Note, A = Note, 5 = 5th octave}; duration (quarter note,
 
-  Serial.print("Starting the shebang");
+  Serial.println("Starting the shebang");
 
 
   int BellaCiao[44][3] = {
@@ -75,7 +76,7 @@ void loop() {
 
   };
 
-  int sizeOfToxic = 266;
+  int sizeOfToxic = 260;
   // Link: https://musescore.com/user/14650376/scores/4998268
 
   int Toxic[sizeOfToxic][3] = {
@@ -147,8 +148,8 @@ void loop() {
     // Bar 35: Chorus: Taste of your lips, I'm on a ride
     {ND4, quarter, quarter + 50}, {NC4, eighth, eighth + 50}, {NAS4, eighth, eighth + 50}, {NAS4, quarter, quarter + 50}, {NG4, quarter, quarter + 50}, 
     {NF4, eighth, eighth + 50}, {NDS4, eighth, eighth + 50}, {NAS4, dottedHalf, dottedHalf + 50}, 
-    {REST, quarter, 0}, {NC5, quarter, quarter+50}, {NG5, quarter, quarter+50}, {NC5, quarter, quarter+50}, //You're Tox Ic
-    {NG5, quarter, quarter+50}, {NC5, eighth, eighth+50}, {NC5, eighth, eighth+50}, {NG4, quarter, quarter+50}, {NG4, eighth, eighth+50}, {NAS4, eighth, eighth+50},
+    {REST, quarter, 0}, {NC5, quarter, quarter+50}, {NG4, quarter, quarter+50}, {NC5, quarter, quarter+50}, //You're Tox Ic
+    {NG4, quarter, quarter+50}, {NC5, eighth, eighth+50}, {NC5, eighth, eighth+50}, {NG4, quarter, quarter+50}, {NG4, eighth, eighth+50}, {NAS4, eighth, eighth+50},
 
     {ND4, quarter, quarter + 50}, {NC4, eighth, eighth + 50}, {NAS4, eighth, eighth + 50}, {NAS4, quarter, quarter + 50}, {NG4, quarter, quarter + 50}, 
     {NF4, eighth, eighth + 50}, {NDS4, eighth, eighth + 50}, {NAS4, half, half + 50}, {NC4, eighth, eighth+50}, {NDS4, eighth, eighth+50},
@@ -156,21 +157,39 @@ void loop() {
     {NFS4, quarter, quarter+50}, {NF4, eighth, eighth + 50}, {NDS4, eighth, eighth + 50}, {NF4, quarter, quarter+50}, {NG4, quarter, quarter+50},
     
     {NG5, quarter, 2*half},
-    
- 
-    
+
   };
-  
+
+
+  int BUTTON_MAPPINGS[680];
 
   //tone(BuzzerPin, NA5, quarter);
   delay(1000);
   //Serial.print(REST==100);
 
   for (int i = 0; i < sizeOfToxic; i++) {
+    int indexPointer = 0;
     if (Toxic[i][0] == REST) {
-      delay(Toxic[i][1]);
+      int dur = Toxic[i][1];
+      for (int j=0; j<(dur/sixteenth); ++j) {
+        BUTTON_MAPPINGS[indexPointer++] = -1;
+        Serial.println(BUTTON_MAPPINGS[indexPointer-1]);
+      }
+      delay(dur);
+      
     } else {
-      tone(BuzzerPin, Toxic[i][0], Toxic[i][1]);
+      int note = Toxic[i][0]; int dur = Toxic[i][1];
+      tone(BuzzerPin, note, dur);
+      BUTTON_MAPPINGS[indexPointer++] = getButton(note);
+      Serial.println(BUTTON_MAPPINGS[indexPointer-1]);
+      for (int j=1; j<(dur/sixteenth); ++j) {
+        BUTTON_MAPPINGS[indexPointer++] = -1;
+        Serial.println(BUTTON_MAPPINGS[indexPointer-1]);
+      }
+      
+      
+      
+      
 
       delay(Toxic[i][2]);
     }
@@ -190,13 +209,26 @@ void loop() {
     }
   */
 
-  Serial.print("NEW LOOPPPE");
+  Serial.print("NEW LOOOOPP");
   delay(6000);
 }
 
-int duration(int beat, int bpm) {
-  // returns number of milliseconds a given beat length should be
+int getButton(int noteVal) {
+  // returns button value corresponding to note frequency
   int result;
-  result = beat * 1000 * (60 / bpm);
+  int button1[] = {NC3, NE3, NGS3, NC4, NE4, NGS4, NC5, NE5, NGS5, NC6, NE6, NGS6};
+  int button2[] = {NCS3, NF3, NA3, NCS4, NF4, NA4, NCS5, NF5, NA5, NCS6, NF6, NA6};
+  int button3[] = {ND3, NFS3, NAS3, ND4, NFS4, NAS4, ND5, NFS5, NAS5, ND6, NFS6, NAS6,};
+  int button4[] = {NDS3, NG3, NB3, NDS4, NG4, NB4, NDS5, NG5, NB5, NDS6, NG6, NB6,};
+  
+  for (int i = 0; i < 12; i++) {
+    if ( button1[i] == noteVal) return 0;
+    if ( button2[i] == noteVal) return 1;
+    if ( button3[i] == noteVal) return 2;
+    if ( button4[i] == noteVal) return 3;
+    
+  }
+
+  
   return result;
 }
