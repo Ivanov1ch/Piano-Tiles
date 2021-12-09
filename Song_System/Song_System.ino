@@ -37,7 +37,8 @@ int eighth = 0;
 int dottedEighth = 0;
 int sixteenth = 0;
 
-int bpm = 300;
+int bpm = 72; // This should be good for playing difficulty, 
+// even if less recognizable
 
 int BellaCiao[44][3];
 
@@ -54,6 +55,7 @@ void setup() {
   half = 2 * quarter;
   dottedHalf = 3 * quarter;
   sixteenth = eighth / 2;
+  // THIS VARIABLE SHOULD BE TIME BETWEEN LED's flashing
 }
 void loop() {
   // Note: {Note Value (N=Note, A = Note, 5 = 5th octave}; duration (quarter note,
