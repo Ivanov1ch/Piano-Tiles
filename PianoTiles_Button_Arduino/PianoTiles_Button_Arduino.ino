@@ -54,25 +54,27 @@ int dottedHalf = 3 * quarter;
 int sixteenth = eighth / 2;
 
 int BellaCiao[44][3] = {
-    {NE5, eighth, eighth + 50}, {NA5, eighth, eighth + 50}, {NB5, eighth, eighth + 50}, {NC6, eighth, eighth + 50},
-    {NA5, eighth, eighth + 50}, {REST, dottedQuarter, 0}, {NE5, eighth, eighth + 50}, {NA5, eighth, eighth + 50},
-    {NB5, eighth, eighth + 50}, {NC6, eighth, eighth + 50}, {NA5, eighth, eighth + 50}, {REST, dottedQuarter, 0},
+    {NE5, eighth, eighth}, {NA5, eighth, eighth}, {NB5, eighth, eighth}, {NC6, eighth, eighth},
+    {NA5, eighth, eighth}, {REST, dottedQuarter}, {NE5, eighth, eighth}, {NA5, eighth, eighth},
+    {NB5, eighth,}, {NC6, eighth, eighth}, {NA5, eighth, eighth}, {REST, dottedQuarter, 0}, {REST, quarter,0},
 
-    {NE5, eighth, eighth + 50}, {NA5, eighth, eighth + 50}, {NB5, eighth, eighth + 50}, {NC6, quarter, quarter + 50}, // last one is 1.3. CIAO
-    {NB5, eighth, eighth + 50}, {NA5, eighth, eighth + 50}, {NC6, quarter, quarter + 50},
-    {NB5, eighth, eighth + 50}, {NA5, eighth, eighth + 50}, {NE6, quarter, quarter + 50}, {NE6, quarter, quarter + 50}, {NE6, quarter, quarter + 50}, // CIAO CIAO CIAO. 24 notes
+    {NE5, eighth, eighth}, {NA5, eighth, eighth}, {NB5, eighth, eighth}, {NC6, quarter, quarter}, // last one is 1.3. CIAO
+    {NB5, eighth, eighth}, {NA5, eighth, eighth}, {NC6, quarter, quarter},
+    {NB5, eighth, eighth}, {NA5, eighth, eighth}, {NE6, quarter, quarter}, {NE6, quarter, quarter}, {NE6, quarter, quarter}, // CIAO CIAO CIAO. 24 notes
   
-    {ND6, eighth, eighth + 50}, {NE6, eighth, eighth + 50}, {NF6, eighth, eighth + 50}, {NF6, dottedQuarter, dottedQuarter + 50}, {REST, dottedQuarter, 0},
-    {NF6, eighth, eighth + 50}, {NE6, eighth, eighth + 50}, {ND6, eighth, eighth + 50}, {NF6, eighth, eighth + 50}, {NE6, dottedQuarter,dottedQuarter  + 50}, {REST, quarter, 0},
-    {ND6, eighth, eighth + 50}, {NC6, eighth, eighth + 50}, {NB5, quarter, quarter + 50}, {NE6, quarter, quarter + 50}, {NB5, quarter, quarter + 50}, {NC6, quarter, quarter + 50},
-    {NA5, half, half + 50}, {REST, 2 * half, 0}
+    {ND6, eighth, eighth}, {NE6, eighth, eighth}, {NF6, eighth, eighth}, {NF6, dottedQuarter, dottedQuarter}, {REST, eighth, 0},
+    {NF6, eighth, eighth }, {NE6, eighth, eighth}, {ND6, eighth, eighth}, {NF6, eighth, eighth}, {NE6, dottedQuarter,dottedQuarter}, {REST, quarter, 0},
+    
+    {ND6, eighth, eighth}, {NC6, eighth, eighth}, {NB5, quarter, quarter}, {NE6, quarter, quarter}, {NB5, quarter, quarter}, {NC6, quarter, quarter},
+    {NA5, half, half}
   };
 
 int timeToStartPlaying;
 
 // THIS VARIABLE SHOULD BE TIME BETWEEN LED's flashing
-void startPlaying(int numBytes) {
-  timeToStartPlaying = millis() + Wire.read();
+void startPlaying(int numBytes) { //bound to onReceive()
+  Wire.read();
+  timeToStartPlaying = millis() + 3 * eighth;
   Serial.println(timeToStartPlaying);
   menuState = 3;
 }
@@ -107,7 +109,7 @@ void pickSong() {
   }
 }
 
-void playGame() {
+void playGame() { //menuState is 3, triggered by startPlaying
   while(millis() < timeToStartPlaying)
     Serial.println(String(millis()) + ", " + timeToStartPlaying);
   
@@ -122,6 +124,8 @@ void playGame() {
       delay(BellaCiao[i][2]);
     }
   }
+
+  menuState=1;   
 }
 
 void resetScreen() {
@@ -148,7 +152,7 @@ void startScreen() {
   }
 }
 
-void sendButtonConfig(int numBytes) {
+void sendButtonConfig(int numBytes) { //bound to onRequest
   if (numBytes == 4) {
     if (menuState == 2) {
       Wire.write(chosenSong); // Tell the main Arduino that we are ready to play
@@ -176,7 +180,7 @@ void setup() {
 
 void loop() {
   updateButtons();
-//  if(menuState == 0)
+//\\\\      if(menuState == 0)
 //      startScreen();
 //  else if (menuState == 1)
 //      pickSong();

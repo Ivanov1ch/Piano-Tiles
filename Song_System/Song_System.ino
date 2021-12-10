@@ -86,13 +86,14 @@ void loop() {
 
 
 
-  int BUTTON_MAPPINGS[75];
+  int INPUT_MAPPINGS[105];
 
   //tone(BuzzerPin, NA5, quarter);
   ////serial.print(REST==100);
+  int j = 0;
+  int indexPointer = 0;
 
   for (int i = 0; i < sizeOfBella; i++) {
-    int indexPointer = 0;
     if (BellaCiao[i][0] == REST) {
       int dur = BellaCiao[i][1];
       for (int j=0; j<(dur/eighth); ++j) {
@@ -103,7 +104,7 @@ void loop() {
       
     } else {
       int note = BellaCiao[i][0]; int dur = BellaCiao[i][1];
-      tone(BuzzerPin, note, dur);
+      //tone(BuzzerPin, note, dur);
       BUTTON_MAPPINGS[indexPointer++] = getButton(note);
       //serial.println(BUTTON_MAPPINGS[indexPointer-1]);
       for (int j=1; j<(dur/eighth); ++j) {

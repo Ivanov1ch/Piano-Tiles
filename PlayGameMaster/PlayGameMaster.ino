@@ -40,9 +40,12 @@ void unlightLED(int row, int col) {
 
 void playGame() {
   int BCButtonMappings[75] = {0, 1, 3, 0, 1, -1, -1, -1, 0, 1, 3, 0, 1, -1, -1, -1, 
-  0, 1, 3, 0, -1, 3, 1, 0, -1, 3, 1, 
-  0, -1, 0, -1, 0, -1, 2, 0, 1, 1, -1, -1, -1, 
+  0, 1, 3, 0, -1, 
+  3, 1, 0, -1, 3, 1, 
+  0, -1, 0, -1, 0, -1, // CIAO CIAO CIAO
+  2, 0, 1, 1, -1, -1, -1,
   1, 0, 2, 1, 0, -1, -1, -1, -1, 
+  
   0, 2, 0, -1, 3, -1, 0, -1, 3, -1, 0, -1, 1, -1};
   int currentIndex = 0;
 
@@ -54,7 +57,7 @@ void playGame() {
   currentIndex++;
 
   Wire.beginTransmission(2);
-  Wire.write(eighth * 7);
+  Wire.write(7); // arbitrary message to trigger 
   Wire.endTransmission();
   
   delay(eighth);
