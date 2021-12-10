@@ -6,6 +6,8 @@ const int numCols = sizeof(LEDPins[0])/sizeof(LEDPins[0][0]);
 
 const int BuzzerPin = 11;
 
+const int numSongs = 2;
+
 int rowProgression[13] = {3, 2, 2, 1, 0, -1, -1, 2, -1, 3, 2, 1, 0};
 int currentlyLitLEDs[numRows][2] = {};
 int rowsShown = 0, rowsCleared = 0, numRests = 0, progressionLen = sizeof(rowProgression) / sizeof(rowProgression[0]);
@@ -28,9 +30,35 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+
+  Serial.println("Asking for which song to play");
   
+  // Init array of 0s (all unpressed)
+  int buttonStatuses[numSongs] = {};
+
+  // put your main code here, to run repeatedly:
+  Wire.requestFrom(1, numSongs); // request which button has been pressed
+  byte numInputs = Wire.available();
+  for (int i=0; i<numInputs; ++i) {
+    int statusButtonI = Wire.read();
+    buttonStatuses[i] = statusButtonI;
+  }
+
+  if(buttonStatuses[0] == HIGH) playSong1();
+  if(buttonStatuses[1] == HIGH) playSong2();
+  
+
 
 }
 
-void playGame(int songName, int)
+void playSong1() {
+  Serial.println("Song 1");
+  delay(1000);
+  
+}
+
+void playSong2() {
+  Serial.println("Song 2");
+  delay(1000);
+  
+}
