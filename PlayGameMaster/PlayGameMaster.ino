@@ -1,5 +1,8 @@
 #include <Wire.h>
 
+enum GameState{MainMenu, InGame};
+enum GameState gameState;
+
 const int LEDPins[4][4] = {{13, 12, 11, 10}, {9, 8, 7, 6}, {5, 4, 3, 2}, {A0, A1, A2, A3}};
 const int numRows = sizeof(LEDPins)/sizeof(LEDPins[0]);
 const int numCols = sizeof(LEDPins[0])/sizeof(LEDPins[0][0]);
@@ -14,7 +17,8 @@ int rowsShown = 0, rowsCleared = 0, numRests = 0, progressionLen = sizeof(rowPro
 bool isFirstNote = true;
 
 void setup() {
-  Wire.begin(); //since no address specified, joins as Master
+  Wire.begin(0); // Join as master
+  
   Serial.begin(9600);
   
   // Initialize LEDs and Piezo as outputs
@@ -23,30 +27,29 @@ void setup() {
     for (int j = 0; j < numCols; j++)
       pinMode(LEDPins[i][j], OUTPUT);
 
-  Serial.print("Starting Shit");
+  gameState = MainMenu;
 }
 
 void loop() {
-
-  //Serial.println("Asking for which song to play");
+  Wire.requestFrom(1, 4);
+  while(Wire.available())
+    Serial.println(String(Wire.read()));
   
-  // Init array of 0s (all unpressed)
-  int buttonStatuses[] = {0,0,0,0};
-
-  Wire.requestFrom(1, numSongs); // request which button has been pressed
-  byte numInputs = Wire.available();
-  if(numInputs > 0) Serial.print("Slave responded!");
-  for (int i=0; i<numInputs; ++i) {
-    int statusButtonI = Wire.read();
-    buttonStatuses[i] = statusButtonI;
+  switch(gameState) {
+    case MainMenu:
+      // Idle
+      break;
+     case InGame:
+      break;
   }
-
-  if(buttonStatuses[0] == HIGH) playSong1();
-  if(buttonStatuses[1] == HIGH) playSong2();
-  
-
-
 }
+
+void receiveMenuUpdate(int numBytes) {
+  int selectedOption = Wire.read();
+
+  Serial.println(selectedOption);
+}
+
 /*
 void updateButtons() {
   Wire.requestFrom(1, numSongs); // request which button has been pressed
@@ -58,16 +61,12 @@ void updateButtons() {
 }
 */
 
-
-
 void playSong1() {
   Serial.println("Song 1");
   delay(1000);
-  
 }
 
 void playSong2() {
   Serial.println("Song 2");
   delay(1000);
-  
 }

@@ -13,25 +13,17 @@ int buttonStatuses[numButtons] = {0,0,0,0};
 
 int gameState = 0;
 
-void sendButtonConfig(int numBytes) {
-  
-  Wire.beginTransmission(0);
-  for(int stat:buttonStatuses) {
-    Wire.write(stat);
-  }
-  Wire.endTransmission();
+void updateButtons() {
+  for(int i = 0; i < numButtons; i++)
+    buttonStatuses[i] = HIGH - digitalRead(buttonPins[i]);
 }
 
 void pickSong() {
   lcd.print("Black:BellaChio"); //index 0 in array
   lcd.setCursor(0, 1); 
-  lcd.print("Blue: Toxic "); //index 1 in array
+  lcd.print("Blue: Toxic"); //index 1 in array
   
-  int button1State = HIGH - digitalRead(buttonPins[0]);
-  int button2State = HIGH - digitalRead(buttonPins[1]); 
-
-  if(button1State == HIGH) { // play Bella Ciao
-    buttonStatuses[0] = button1State;
+  if(buttonStatuses[0]) { // play Bella Ciao
     resetScreen();
     lcd.print("Playing");
     lcd.setCursor(0, 1);
@@ -40,31 +32,16 @@ void pickSong() {
     gameState = 2;
   }
 
-  if(button2State == HIGH) { // play Toxic
-    buttonStatuses[1] = button2State;
+  if(buttonStatuses[1]) { // play Toxic
     resetScreen();
     lcd.print("Playing Toxic");
     delay(2500);
     gameState = 2;
-    
   }
 }
 
-void playGame() { // THIS IS NOT RIGHT, just placeholder shit
-
-  for (int i=0; i<numButtons; ++i) {
-    int valueRead = digitalRead(buttonPins[i]);
-    buttonStatuses[i] = HIGH - valueRead;
-    if (buttonStatuses[i] == HIGH) {
-      resetScreen();
-      lcd.print("button "); lcd.print(i+1); lcd.print("is");
-      lcd.setCursor(0, 1);
-      lcd.print("pressed");
-    
-      delay(1000);    
-    }
-  }
-
+void playGame() {
+  // idle
 }
 
 void resetScreen() {
@@ -84,34 +61,36 @@ void startScreen() {
   lcd.print("button to start");
 
   for (int i=0; i<numButtons; ++i) {
-     int valueRead = digitalRead(buttonPins[i]);
-     buttonStatuses[i] = HIGH - valueRead;
-  }
-  for (int i=0; i<numButtons; ++i) {
       if(buttonStatuses[i] == HIGH) {
         resetScreen();
         gameState = 1;
         delay(200);
-         
      }
   }
 }
 
+void sendButtonConfig() {
+  updateButtons();
+  for (int i = 0; i < numButtons; i++) {
+    Serial.println(buttonStatuses[i]);
+    Wire.write(buttonStatuses[i]);
+  }
+}
+
 void setup() {
-  Wire.begin(1); //declare as slave
+  Wire.begin(1);
   lcd.begin(16, 2);  
   
-  //Serial.begin(9600);
+  Serial.begin(9600);
 
   for(int i = 0; i < numButtons; i++)
     pinMode(buttonPins[i], INPUT);
 
   Wire.onReceive(sendButtonConfig);
-
-  
 }
 
 void loop() {
+  updateButtons();
   switch(gameState) {
     case 0: 
       startScreen();
