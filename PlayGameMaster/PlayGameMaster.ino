@@ -31,14 +31,19 @@ void setup() {
 }
 
 void loop() {
-  Wire.requestFrom(2, 4);
-  Serial.println(String(Wire.read()) + ", " + String(Wire.read()) + ", " + String(Wire.read()) + ", " + String(Wire.read()));
-  delay(500);
   switch(gameState) {
     case MainMenu:
-      // Idle
+      Wire.requestFrom(2, 4);
+      int chosenSong = Wire.read();
+      Serial.println(String(gameState) + ", " + String(chosenSong));
+
+      if (chosenSong > 0)
+        gameState = InGame;
+        
       break;
      case InGame:
+      Serial.println(gameState);
+      digitalWrite(13, HIGH);
       break;
   }
 }

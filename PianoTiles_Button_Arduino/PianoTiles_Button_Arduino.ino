@@ -1,6 +1,9 @@
 #include <Wire.h>
 #include <LiquidCrystal.h>
 
+enum MenuState{start, pickingSong, inGame};
+enum MenuState menuState;
+
 // initialize the library by associating any needed LCD interface pin
 // with the arduino pin number it is connected to
 const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
@@ -11,7 +14,7 @@ LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 const int buttonPins[numButtons] = {8, 9, 7, 6}; // black, blue, yellow, white
 int buttonStatuses[numButtons] = {0,0,0,0};
 
-int gameState = 0;
+int chosenSong = 0;
 
 void updateButtons() {
   for(int i = 0; i < numButtons; i++)
@@ -24,19 +27,21 @@ void pickSong() {
   lcd.print("Blue: Toxic"); //index 1 in array
   
   if(buttonStatuses[0]) { // play Bella Ciao
+    chosenSong = 1;
+    menuState = inGame;
     resetScreen();
     lcd.print("Playing");
     lcd.setCursor(0, 1);
     lcd.print("Bella Ciao");
     delay(2500);
-    gameState = 2;
   }
 
   if(buttonStatuses[1]) { // play Toxic
+    chosenSong = 2;
+    menuState = inGame;
     resetScreen();
     lcd.print("Playing Toxic");
     delay(2500);
-    gameState = 2;
   }
 }
 
@@ -54,7 +59,6 @@ void resetScreen() {
 
 void startScreen() {
   // Code that greets user and updates user on which was pressed
-
   lcd.setCursor(0, 0);
   lcd.print("Welcome! Press");
   lcd.setCursor(0, 1);
@@ -63,16 +67,24 @@ void startScreen() {
   for (int i=0; i<numButtons; ++i) {
       if(buttonStatuses[i] == HIGH) {
         resetScreen();
-        gameState = 1;
+        menuState = pickingSong;
         delay(200);
      }
   }
 }
 
 void sendButtonConfig(int numBytes) {
-  for (int i = 0; i < numButtons; i++) {
-    Wire.write(HIGH - digitalRead(buttonPins[i]));
-  }
+  Serial.println(String(numBytes) + ", " + String(menuState) + ", " + String(chosenSong));
+  if (numBytes == 4) {
+    if (menuState == inGame) {
+      Wire.write(chosenSong); // Tell the main Arduino that we are ready to play
+    } else {
+      Wire.write(0);
+    }
+  } else if (numBytes == 16)
+    for (int i = 0; i < numButtons; i++)
+      Wire.write(HIGH - digitalRead(buttonPins[i]));
+  
 }
 
 void setup() {
@@ -90,14 +102,14 @@ void setup() {
 
 void loop() {
   updateButtons();
-  switch(gameState) {
-    case 0: 
+  switch(menuState) {
+    case start: 
       startScreen();
       break;
-    case 1:
+    case pickingSong:
       pickSong();
       break;
-    case 2: 
+    case inGame: 
       playGame();
       break;
   }
