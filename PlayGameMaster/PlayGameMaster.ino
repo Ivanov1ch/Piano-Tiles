@@ -7,9 +7,8 @@ const int numCols = sizeof(LEDPins[0])/sizeof(LEDPins[0][0]);
 
 const int numSongs = 2;
 
-int rowProgression[13] = {3, 2, 2, 1, 0, -1, -1, 2, -1, 3, 2, 1, 0};
 int currentlyLitLEDs[numRows][2] = {};
-int rowsShown = 0, rowsCleared = 0, numRests = 0, progressionLen = sizeof(rowProgression) / sizeof(rowProgression[0]);
+int rowsShown = 0, rowsCleared = 0, numRests = 0;
 bool isFirstNote = true;
 
 int gameState, chosenSong, chosenSongLength;
@@ -36,6 +35,14 @@ void unlightLED(int row, int col) {
   digitalWrite(LEDPin, LOW);
   currentlyLitLEDs[row][0] = 0;
   currentlyLitLEDs[row][1] = 0;
+}
+
+void reset() {
+  for (int i = 0; i < numRows; i++)
+    for (int j = 0; j < numCols; j++)
+      digitalWrite(LEDPins[i][j], LOW);
+
+  gameState = 0;
 }
 
 void playGame() {
@@ -79,6 +86,8 @@ void playGame() {
 
     delay(eighth);
   }
+
+  reset();
 }
 
 void setup() {
@@ -92,7 +101,7 @@ void setup() {
     for (int j = 0; j < numCols; j++)
       pinMode(LEDPins[i][j], OUTPUT);
 
-  gameState = 1;
+  gameState = 0;
 }
 
 void loop() { 

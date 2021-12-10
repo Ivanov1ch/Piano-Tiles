@@ -10,7 +10,7 @@ const int numButtons = 4;
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
 // Order: same as columns, from left to right (green, blue, yellow, white)
-const int buttonPins[numButtons] = {A0, A1, A2, A3}; // black, blue, yellow, white
+const int buttonPins[numButtons] = {A3, A2, A1, A0}; // black, blue, yellow, white
 int buttonStatuses[numButtons] = {0,0,0,0};
 
 const int BuzzerPin = 8;
@@ -69,26 +69,37 @@ int BellaCiao[44][3] = {
     {NA5, half, half}
   };
 
+
+void reset() {
+  noTone(BuzzerPin);
+  resetScreen();
+  menuState = 0;
+  delay(1500);
+}
+
 int timeToStartPlaying;
 
 // THIS VARIABLE SHOULD BE TIME BETWEEN LED's flashing
 void startPlaying(int numBytes) { //bound to onReceive()
   Wire.read();
-  timeToStartPlaying = millis() + 3 * eighth;
+  timeToStartPlaying = millis() + 4 * eighth;
   Serial.println(timeToStartPlaying);
   menuState = 3;
 }
 
 void updateButtons() {
   for(int i = 0; i < numButtons; i++) {
-    buttonStatuses[i] = HIGH - digitalRead(buttonPins[i]);
+    if (i != 2)
+      buttonStatuses[i] = HIGH - digitalRead(buttonPins[i]);
+    else 
+      buttonStatuses[i] = digitalRead(buttonPins[i]);
   }
 }
 
 void pickSong() {
-  lcd.print("Black:BellaChio"); //index 0 in array
+  lcd.print("Black:"); //index 0 in array
   lcd.setCursor(0, 1); 
-  lcd.print("Blue: Toxic"); //index 1 in array
+  lcd.print("Bella Ciao      "); //index 1 in array
   
   if(buttonStatuses[0]) { // play Bella Ciao
     chosenSong = 1;
@@ -97,15 +108,6 @@ void pickSong() {
     lcd.print("Playing");
     lcd.setCursor(0, 1);
     lcd.print("Bella Ciao");
-    delay(2500);
-  }
-
-  if(buttonStatuses[1]) { // play Toxic
-    chosenSong = 2;
-    menuState = 2;
-    resetScreen();
-    lcd.print("Playing Toxic");
-    delay(2500);
   }
 }
 
@@ -125,7 +127,7 @@ void playGame() { //menuState is 3, triggered by startPlaying
     }
   }
 
-  menuState=1;   
+  reset();
 }
 
 void resetScreen() {
@@ -146,8 +148,7 @@ void startScreen() {
   for (int i=0; i<numButtons; ++i) {
       if(buttonStatuses[i] == HIGH) {
         resetScreen();
-        menuState = 1;
-        delay(200);
+        menuState = 1; 
      }
   }
 }
@@ -176,15 +177,17 @@ void setup() {
 
   for(int i = 0; i < numButtons; i++)
     pinMode(buttonPins[i], INPUT);
+
+  menuState = 0;
 }
 
 void loop() {
   updateButtons();
-//\\\\      if(menuState == 0)
-//      startScreen();
-//  else if (menuState == 1)
-//      pickSong();
-//  else 
-  if (menuState == 3) 
+  Serial.println(String(millis()) + ", " + buttonStatuses[0] + ", " + buttonStatuses[1] + ", " + buttonStatuses[2] + ", " + buttonStatuses[3]);
+  if(menuState == 0)
+      startScreen();
+  else if (menuState == 1)
+      pickSong();
+  else if (menuState == 3) 
       playGame();
 }
