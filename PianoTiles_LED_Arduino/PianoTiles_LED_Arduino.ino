@@ -11,25 +11,14 @@ int currentlyLitLEDs[numRows][2] = {};
 int rowsShown = 0, rowsCleared = 0, numRests = 0, progressionLen = sizeof(rowProgression) / sizeof(rowProgression[0]);
 bool isFirstNote = true;
 
-int buttonStates[numCols] = {};
-bool newButtonData = false;
-
 void setup() {
   Serial.begin(9600);
-  Wire.begin(0x2);
-  Wire.onReceive(gotButtonStatus);
+  Wire.begin(0);
 
   // Initialize LEDs as outputs
   for (int i = 0; i < numRows; i++)
     for (int j = 0; j < numCols; j++)
       pinMode(LEDPins[i][j], OUTPUT);
-}
-
-void gotButtonStatus(int numBytes) {
-  Serial.println("Receieved");
-  for(int i = 0; i < numCols; i++)
-    buttonStates[i] = Wire.read();
-  newButtonData = true;
 }
 
 void loop() {
