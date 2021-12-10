@@ -13,32 +13,29 @@ int currentlyLitLEDs[numRows][2] = {};
 int rowsShown = 0, rowsCleared = 0, numRests = 0, progressionLen = sizeof(rowProgression) / sizeof(rowProgression[0]);
 bool isFirstNote = true;
 
-
 void setup() {
   Wire.begin(); //since no address specified, joins as Master
   Serial.begin(9600);
-
   
-
   // Initialize LEDs and Piezo as outputs
   pinMode(BuzzerPin, OUTPUT);
   for (int i = 0; i < numRows; i++)
     for (int j = 0; j < numCols; j++)
       pinMode(LEDPins[i][j], OUTPUT);
 
-
+  Serial.print("Starting Shit");
 }
 
 void loop() {
 
-  Serial.println("Asking for which song to play");
+  //Serial.println("Asking for which song to play");
   
   // Init array of 0s (all unpressed)
-  int buttonStatuses[numSongs] = {};
+  int buttonStatuses[] = {0,0,0,0};
 
-  // put your main code here, to run repeatedly:
   Wire.requestFrom(1, numSongs); // request which button has been pressed
   byte numInputs = Wire.available();
+  if(numInputs > 0) Serial.print("Slave responded!");
   for (int i=0; i<numInputs; ++i) {
     int statusButtonI = Wire.read();
     buttonStatuses[i] = statusButtonI;
@@ -50,6 +47,18 @@ void loop() {
 
 
 }
+/*
+void updateButtons() {
+  Wire.requestFrom(1, numSongs); // request which button has been pressed
+  byte numInputs = Wire.available();
+  for (int i=0; i<numInputs; ++i) {
+    int statusButtonI = Wire.read();
+    buttonStatuses[i] = statusButtonI;
+  }
+}
+*/
+
+
 
 void playSong1() {
   Serial.println("Song 1");
