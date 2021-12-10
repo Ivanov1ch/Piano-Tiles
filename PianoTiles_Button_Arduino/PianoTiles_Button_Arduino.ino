@@ -69,16 +69,16 @@ void startScreen() {
   }
 }
 
-void sendButtonConfig() {
-  updateButtons();
+void sendButtonConfig(int numBytes) {
   for (int i = 0; i < numButtons; i++) {
-    Serial.println(buttonStatuses[i]);
-    Wire.write(buttonStatuses[i]);
+    Wire.write(HIGH - digitalRead(buttonPins[i]));
   }
 }
 
 void setup() {
-  Wire.begin(1);
+  Wire.begin(2);
+  Wire.onRequest(sendButtonConfig);
+  
   lcd.begin(16, 2);  
   
   Serial.begin(9600);
@@ -86,7 +86,6 @@ void setup() {
   for(int i = 0; i < numButtons; i++)
     pinMode(buttonPins[i], INPUT);
 
-  Wire.onReceive(sendButtonConfig);
 }
 
 void loop() {

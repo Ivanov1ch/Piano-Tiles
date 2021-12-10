@@ -17,7 +17,7 @@ int rowsShown = 0, rowsCleared = 0, numRests = 0, progressionLen = sizeof(rowPro
 bool isFirstNote = true;
 
 void setup() {
-  Wire.begin(0); // Join as master
+  Wire.begin(); // Join as master
   
   Serial.begin(9600);
   
@@ -31,10 +31,9 @@ void setup() {
 }
 
 void loop() {
-  Wire.requestFrom(1, 4);
-  while(Wire.available())
-    Serial.println(String(Wire.read()));
-  
+  Wire.requestFrom(2, 4);
+  Serial.println(String(Wire.read()) + ", " + String(Wire.read()) + ", " + String(Wire.read()) + ", " + String(Wire.read()));
+  delay(500);
   switch(gameState) {
     case MainMenu:
       // Idle
