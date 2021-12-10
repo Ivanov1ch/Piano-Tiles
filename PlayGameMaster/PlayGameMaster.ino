@@ -58,7 +58,7 @@ void defineNoteDurations(int song_bpm) {
   // THIS VARIABLE SHOULD BE TIME BETWEEN LED's flashing
 }
 
-void playGame(int songChoice) {
+void playGame() {
   defineNoteDurations(bella_ciao_bpm);
   
   int BellaCiao[44][3] = {
@@ -104,7 +104,7 @@ void setup() {
 
 void loop() { 
   if(gameState == 1){
-    playGame(chosenSong);
+    playGame();
   } else {
     Wire.requestFrom(2, 4);
     int song = Wire.read();
@@ -113,7 +113,6 @@ void loop() {
       Wire.read();
       
     if (song > 0) {
-      chosenSong = 1;
       gameState = 1;
     }
   }
